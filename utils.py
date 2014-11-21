@@ -24,7 +24,7 @@ def requestUrlContent(url, cache_dir="cache", filename=None):
     # print command, type(command), type(command.decode("utf-8"))
     # command = 'wget "http://bs.baidu.com/dulife/100500mf6hfqfozfnnhqph_副本.jpg" -O .\\cache\\news\\img\\1.png'
     if not os.path.isfile(target_path):
-        state = os.system(command.encode("gb2312"))
+        state = os.system(command.encode("utf-8")) # 在windows下是gb2312, 在ubuntu主机上应该是utf-8
         # print state
     else:
         print target_path, "is already downloaded!"
@@ -129,7 +129,9 @@ def insertIntoContent(cursor, _asset_id, _title, _introtext, _fulltext):
     else:
         return count
 
+WWW_ROOT = "/home/ubuntu/drupal/dreame"
 TARGET_CACHE_DIR = "media"+os.path.sep+"tz_portfolio"+os.path.sep+"article"+os.path.sep+"cache"
+TARGET_CACHE_DIR = os.path.join(WWW_ROOT, TARGET_CACHE_DIR)
 def downloadNewsThumbnails(_id, url):
     if not os.path.isdir(TARGET_CACHE_DIR):
         os.makedirs(TARGET_CACHE_DIR)
