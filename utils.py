@@ -213,7 +213,7 @@ def insert_xref_content(cursor, _contentid, _images):
     values = (contentid, groupid, images, images_hover, gallery, video, content_type, imagetitle, gallerytitle, videotitle, videothumb, attachfiles, attachtitle, attachold, audio, audiothumb, audiotitle, quote_author, quote_text, link_url, link_title, link_attribs)
     return cursor.execute(XREF_INSERT_COMMAND, values)
 
-def insertArtical(cursor):
+def insertArtical(cursor, quota=1):
     db = sqlite3.connect("store.sqlite")
     allNews = db.execute('select id, title, excerpt, thumbnails from news').fetchall()
 
@@ -242,16 +242,16 @@ def insertArtical(cursor):
         insert_xref_content(cursor, content_id, images)
 
         count += 1
-        if count >= 1:
+        if count >= quota:
             break
 
-def MySQLTest():
+def insert_article_main(quota=1):
     
     try:
-        conn=MySQLdb.connect(host="localhost",user="root",passwd="a1b2c3d4",db="world",charset="utf8")
+        conn=MySQLdb.connect(host="localhost",user="debian-sys-maint",passwd="eMBWzH5SIFJw5I4c",db="future-store",charset="utf8")
         cur=conn.cursor()
 
-        insertArtical(cur)
+        insertArtical(cur, quota)
 
         cur.close()
         conn.commit()
@@ -264,4 +264,10 @@ if __name__ == "__main__":
     sys.setdefaultencoding('utf-8')
     # requestUrlContent("http://store.baidu.com/product/api/recommendList?cat_id=0&orderBy=hot&order=desc&pn=1&limit=36")
     # downloadNewsThumbnail()
-    MySQLTest()
+    # insert_article_main()
+    count = 1
+
+    if len(sys.argv) > 1:
+        count = abs(int(sys.argv[1]))
+
+    insert_article_main(count)
