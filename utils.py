@@ -137,7 +137,10 @@ def downloadNewsThumbnails(_id, url):
         os.makedirs(TARGET_CACHE_DIR)
 
     cache_dir = "cache" + os.path.sep + "news" + os.path.sep + "img" + os.path.sep + str(_id)
-    thumbnails_path = requestUrlContent(url, cache_dir, os.path.basename(url))
+    filename, ext = os.path.splitext(os.path.basename(thumbnails_path))
+    filename = md5(thumbnails_path)
+
+    thumbnails_path = requestUrlContent(url, cache_dir, filename + ext)
 
     if not os.path.isfile(thumbnails_path):
         return None
@@ -147,7 +150,7 @@ def downloadNewsThumbnails(_id, url):
     # XS:100, S:200, M:400, L:600, XL:900
     im = Image.open(thumbnails_path)
     width, height = im.size
-    filename, ext = os.path.splitext(os.path.basename(thumbnails_path))
+    
 
     # XS
     _width = 100
