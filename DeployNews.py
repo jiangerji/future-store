@@ -9,7 +9,7 @@ import Image
 
 from utils import *
 
-def insertArtical(cursor, quota=1, ignore=-1):
+def insertProduct(cursor, quota=1, ignore=-1):
     db = sqlite3.connect("store.sqlite")
     allProducts = db.execute('select product_id, product_title, product_intro, product_cover_img, product_thumbnail from products_info').fetchall()
 
@@ -64,7 +64,7 @@ def insertArtical(cursor, quota=1, ignore=-1):
         if count >= quota:
             break
 
-def insert_article_main(quota=1, ignore=-1):
+def insert_product_main(quota=1, ignore=-1):
     
     try:
         import platform
@@ -75,7 +75,7 @@ def insert_article_main(quota=1, ignore=-1):
             conn=MySQLdb.connect(host="localhost",user="debian-sys-maint",passwd="eMBWzH5SIFJw5I4c",db="future-store",charset="utf8")
         cur=conn.cursor()
 
-        insertArtical(cur, quota, ignore)
+        insertProduct(cur, quota, ignore)
 
         cur.close()
         conn.commit()
@@ -87,5 +87,15 @@ if __name__ == "__main__":
     reload(sys)
     sys.setdefaultencoding('utf-8')
 
-    insert_article_main()
+    count = 1
+    ignore = -1
+
+    if len(sys.argv) > 1:
+        count = abs(int(sys.argv[1]))
+
+
+    if len(sys.argv) > 2:
+        ignore = int(sys.argv[2])
+
+    insert_product_main(count, ignore)
     # insertArtical(None, 100000)
