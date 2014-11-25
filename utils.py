@@ -22,6 +22,7 @@ def requestUrlContent(url, cache_dir="cache", filename=None):
     target_path = os.path.join(target_path, filename)
     command = 'wget "%s" -O %s '%(url, target_path)
     # print command, type(command), type(command.decode("utf-8"))
+    print command
     # command = 'wget "http://bs.baidu.com/dulife/100500mf6hfqfozfnnhqph_副本.jpg" -O .\\cache\\news\\img\\1.png'
     if not os.path.isfile(target_path):
         state = os.system(command.encode("utf-8")) # 在windows下是gb2312, 在ubuntu主机上应该是utf-8
@@ -29,7 +30,7 @@ def requestUrlContent(url, cache_dir="cache", filename=None):
     else:
         print target_path, "is already downloaded!"
 
-    if url.endswith(".png") or url.endswith('.jpg') or url.endswith('.gif'):
+    if url.lower().endswith(".png") or url.lower().endswith('.jpg') or url.lower().endswith('.gif') or url.lower().endswith("jpeg"):
         return target_path
 
     return open(target_path).read()
@@ -78,7 +79,7 @@ CONTENT_INSERT_COMMAND = 'insert into erji_content (asset_id, title, alias, intr
 
 CREATED_OWNER = None
 
-def insertIntoContent(cursor, _asset_id, _title, _introtext, _fulltext):
+def insertIntoContent(cursor, _asset_id, _title, _introtext, _fulltext, _catid=8):
     """
     _asset_id: 由insertIntoAssets返回的值
     _title: 文章的标题
@@ -96,7 +97,7 @@ def insertIntoContent(cursor, _asset_id, _title, _introtext, _fulltext):
     introtext = _introtext
     fulltext = _fulltext
     state = 1
-    catid = 8
+    catid = _catid
     created = time.strftime("%Y-%m-%d %H:%M:%S")
     created_by = CREATED_OWNER
     created_by_alias = ""
@@ -129,28 +130,31 @@ def insertIntoContent(cursor, _asset_id, _title, _introtext, _fulltext):
     else:
         return count
 
-WWW_ROOT = "/home/ubuntu/drupal/dreame"
-TARGET_CACHE_DIR = "media"+os.path.sep+"tz_portfolio"+os.path.sep+"article"+os.path.sep+"cache"
-TARGET_CACHE_DIR = os.path.join(WWW_ROOT, TARGET_CACHE_DIR)
+WWW_ROOT = "/home/ubuntu/drupal/dreame-mall"
+
+import platform
+if platform.system() == 'Windows':
+    WWW_ROOT = ""
+
+_TARGET_CACHE_DIR = "media"+os.path.sep+"tz_portfolio"+os.path.sep+"article"+os.path.sep+"cache"
+TARGET_CACHE_DIR = os.path.join(WWW_ROOT, _TARGET_CACHE_DIR)
 def downloadNewsThumbnails(_id, url):
     if not os.path.isdir(TARGET_CACHE_DIR):
         os.makedirs(TARGET_CACHE_DIR)
 
     cache_dir = "cache" + os.path.sep + "news" + os.path.sep + "img" + os.path.sep + str(_id)
-    filename, ext = os.path.splitext(os.path.basename(thumbnails_path))
-    filename = md5(thumbnails_path)
-
-    thumbnails_path = requestUrlContent(url, cache_dir, filename + ext)
+    thumbnails_path = requestUrlContent(url, cache_dir, md5(url) + os.path.splitext(url)[-1])
 
     if not os.path.isfile(thumbnails_path):
         return None
 
-
+    print "处理thumbnails", thumbnails_path
+    print "targat", TARGET_CACHE_DIR
     # 处理成5种尺寸, 按宽度自适应
     # XS:100, S:200, M:400, L:600, XL:900
     im = Image.open(thumbnails_path)
     width, height = im.size
-    
+    filename, ext = os.path.splitext(os.path.basename(thumbnails_path))
 
     # XS
     _width = 100
@@ -187,7 +191,7 @@ def downloadNewsThumbnails(_id, url):
     out = im.resize((_width, _heigh), Image.ANTIALIAS)
     out.save(target_file)
 
-    return os.path.join(TARGET_CACHE_DIR, filename+"_portfolio"+ext)
+    return os.path.join(_TARGET_CACHE_DIR, filename+"_portfolio"+ext)
 
 # 插入到xref content table中
 XREF_INSERT_COMMAND = 'insert into erji_tz_portfolio_xref_content (contentid, groupid, images, images_hover, gallery, video, type, imagetitle, gallerytitle, videotitle, videothumb, attachfiles, attachtitle, attachold, audio, audiothumb, audiotitle, quote_author, quote_text, link_url, link_title, link_attribs) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
@@ -218,13 +222,18 @@ def insert_xref_content(cursor, _contentid, _images):
     values = (contentid, groupid, images, images_hover, gallery, video, content_type, imagetitle, gallerytitle, videotitle, videothumb, attachfiles, attachtitle, attachold, audio, audiothumb, audiotitle, quote_author, quote_text, link_url, link_title, link_attribs)
     return cursor.execute(XREF_INSERT_COMMAND, values)
 
-def insertArtical(cursor, quota=1):
+def insertArtical(cursor, quota=1, ignore=-1):
     db = sqlite3.connect("store.sqlite")
     allNews = db.execute('select id, title, excerpt, thumbnails from news').fetchall()
 
     count = 0
+    ignore_count = 0
 
     for news in allNews:
+        ignore_count += 1
+        if ignore_count <= ignore:
+            continue
+
         _id, title, introtext, thumbnails = news
         # print _id, title, introtext, thumbnails
         # images是 erji_tz_portfolio_xref_content需要
@@ -250,13 +259,13 @@ def insertArtical(cursor, quota=1):
         if count >= quota:
             break
 
-def insert_article_main(quota=1):
+def insert_article_main(quota=1, ignore=-1):
     
     try:
         conn=MySQLdb.connect(host="localhost",user="debian-sys-maint",passwd="eMBWzH5SIFJw5I4c",db="future-store",charset="utf8")
         cur=conn.cursor()
 
-        insertArtical(cur, quota)
+        insertArtical(cur, quota, ignore)
 
         cur.close()
         conn.commit()
@@ -271,8 +280,13 @@ if __name__ == "__main__":
     # downloadNewsThumbnail()
     # insert_article_main()
     count = 1
+    ignore = -1
 
     if len(sys.argv) > 1:
         count = abs(int(sys.argv[1]))
 
-    insert_article_main(count)
+
+    if len(sys.argv) > 2:
+        ignore = int(sys.argv[2])
+
+    insert_article_main(count, ignore)
