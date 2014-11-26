@@ -69,7 +69,7 @@ def mark_tags_to_products(quota=1, ignore=-1):
 def _mark_tags_to_products(cursor, quota=1, ignore=-1):
     # db = sqlite3.connect("store.sqlite")
     # allProducts = db.execute('select product_id, product_intro, product_detail from products_view').fetchall()
-    cursor.execute('select id, title, introtext, `fulltext` from erji_content')
+    cursor.execute('select id, title, introtext, `fulltext` from erji_content where catid=14')
     allProducts = cursor.fetchall()
 
     count = 0
