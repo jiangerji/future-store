@@ -123,7 +123,17 @@ if __name__ == "__main__":
     oldStdout = sys.stdout  
     sys.stdout = logFile
 
-    mark_tags_to_products()
+    count = 1
+    ignore = -1
+
+    if len(sys.argv) > 1:
+        count = abs(int(sys.argv[1]))
+
+
+    if len(sys.argv) > 2:
+        ignore = int(sys.argv[2])
+
+    mark_tags_to_products(count, ignore)
 
     logFile.close()  
     if oldStdout:  
