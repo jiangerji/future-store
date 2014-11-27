@@ -7,16 +7,21 @@ import sqlite3
 import time
 import Image
 
+MYSQL_PASSPORT = "debian-sys-maint"
+MYSQL_PASSWORD = "eMBWzH5SIFJw5I4c"
+MYSQL_DATABASE = "future-store"
+
 def md5(source):
     result = hashlib.md5(source.encode('utf-8')).hexdigest()
     return result
-
+PIC_SUFFIX = ["png", "jpg", "gif", "jpeg", "bmp"]
 def requestUrlContent(url, cache_dir="cache", filename=None):
     if not os.path.isdir(cache_dir):
         os.makedirs(cache_dir)
 
+    ext = os.path.splitext(url)[-1]
     if filename == None:
-        filename = md5(url)
+        filename = md5(url) + ext
 
     target_path = os.path.join(".", cache_dir)
     target_path = os.path.join(target_path, filename)
@@ -30,7 +35,8 @@ def requestUrlContent(url, cache_dir="cache", filename=None):
     else:
         print target_path, "is already downloaded!"
 
-    if url.lower().endswith(".png") or url.lower().endswith('.jpg') or url.lower().endswith('.gif') or url.lower().endswith("jpeg"):
+    # if url.lower().endswith(".png") or url.lower().endswith('.jpg') or url.lower().endswith('.gif') or url.lower().endswith("jpeg"):
+    if ext[1:] in PIC_SUFFIX:
         return target_path
 
     return open(target_path).read()
@@ -222,8 +228,12 @@ def insert_xref_content(cursor, _contentid, _images):
     values = (contentid, groupid, images, images_hover, gallery, video, content_type, imagetitle, gallerytitle, videotitle, videothumb, attachfiles, attachtitle, attachold, audio, audiothumb, audiotitle, quote_author, quote_text, link_url, link_title, link_attribs)
     return cursor.execute(XREF_INSERT_COMMAND, values)
 
-def insertArtical(cursor, quota=1, ignore=-1):
-    db = sqlite3.connect("store.sqlite")
+def insertArtical(cursor, quota=1, ignore=-1, sqliteName=None):
+    _sqliteName = "store.sqlite"
+    if sqliteName != None:
+        _sqliteName = sqliteName
+
+    db = sqlite3.connect(_sqliteName)
     allNews = db.execute('select id, title, excerpt, thumbnails from news').fetchall()
 
     count = 0
@@ -259,13 +269,13 @@ def insertArtical(cursor, quota=1, ignore=-1):
         if count >= quota:
             break
 
-def insert_article_main(quota=1, ignore=-1):
+def insert_article_main(quota=1, ignore=-1, sqliteName=None):
     
     try:
         conn=MySQLdb.connect(host="localhost",user="debian-sys-maint",passwd="eMBWzH5SIFJw5I4c",db="future-store",charset="utf8")
         cur=conn.cursor()
 
-        insertArtical(cur, quota, ignore)
+        insertArtical(cur, quota, ignore, sqliteName)
 
         cur.close()
         conn.commit()

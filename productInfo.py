@@ -7,6 +7,7 @@ import sqlite3
 
 from DownloadManager import *
 from utils import *
+import Tags
 
 class ProductInfo:
 
@@ -57,6 +58,17 @@ class ProductInfo:
         return "\n".join(result)
 
     def __init__(self, infos):
+        cache_dir = os.path.join("cache", "product")
+        self.html_cache_dir = os.path.join(cache_dir, "html")
+        if not os.path.isdir(self.html_cache_dir):
+            os.makedirs(self.html_cache_dir)
+
+        print "创建缓存目录", self.html_cache_dir
+
+        self.img_cache_dir = os.path.join(cache_dir, "img")
+        if not os.path.isdir(self.img_cache_dir):
+            os.makedirs(self.img_cache_dir)
+
         # infos is a dict
         if type(infos) != type({}):
             self._init()
@@ -80,22 +92,21 @@ class ProductInfo:
         self.adjust_score = infos.get("adjust_score", 0)
         self.product_thumbnail = infos.get("product_thumbnail", [])
 
-        cache_dir = os.path.join("cache", "product")
-        self.html_cache_dir = os.path.join(cache_dir, "html")
-
     def downloadImg(self):
         print "开始下载", self.product_name
         if len(self.product_cover_img) > 0:
-            downloadFile(self.product_cover_img, str(self.product_id))
+            # downloadFile(self.product_cover_img, str(self.product_id))
+            requestUrlContent(self.product_cover_img, os.path.join(self.img_cache_dir, str(self.product_id)))
 
         for i in self.product_thumbnail:
-            downloadFile(i, str(self.product_id))
+            # downloadFile(i, str(self.product_id))
+            requestUrlContent(i, os.path.join(self.img_cache_dir, str(self.product_id)))
 
     def downloadHtml(self, db=None):
         print "开始下载产品网页", self.product_name
         url = "http://store.baidu.com/product/view/%s.html"%str(self.product_id)
         cache_file_name = "%s.html"%str(self.product_id)
-        # requestUrlContent(url, self.html_cache_dir, cache_file_name)
+        requestUrlContent(url, self.html_cache_dir, cache_file_name)
 
         content = ""
         try:
@@ -171,12 +182,13 @@ class ProductInfo:
             print "get buy url error:", e
 
         if db:
-            CREATE_PRODUCT_VIEW_TABLE = 'CREATE TABLE IF NOT EXISTS "products_view" ("product_id" INTEGER PRIMARY KEY  NOT NULL  UNIQUE, "product_intro" TEXT, "product_detail" TEXT, "product_thumbnails" TEXT, "buy_url" TEXT )'
+            CREATE_PRODUCT_VIEW_TABLE = 'CREATE TABLE IF NOT EXISTS "products_view" ("product_id" INTEGER PRIMARY KEY  NOT NULL  UNIQUE, "product_intro" TEXT, "product_detail" TEXT, "product_thumbnails" TEXT, "buy_url" TEXT, "tags" TEXT )'
             try:
                 db.execute(CREATE_PRODUCT_VIEW_TABLE)
 
-                INSERT_COMMAND = "insert into products_view values (?,?,?,?,?)"
-                db.execute(INSERT_COMMAND, (self.product_id, product_intro, product_detail, str(product_thumbnails), buy_url))
+                INSERT_COMMAND = "insert into products_view values (?,?,?,?,?,?)"
+                _detail = self.product_title + " " + self.product_intro +" " +product_detail
+                db.execute(INSERT_COMMAND, (self.product_id, product_intro, product_detail, str(product_thumbnails), buy_url, str(Tags.parserTags(_detail))))
                 db.commit()
             except Exception, e:
                 print "insert product view error:", e

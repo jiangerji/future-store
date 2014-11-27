@@ -114,7 +114,18 @@ def _mark_tags_to_products(cursor, quota=1, ignore=-1):
     # db.commit()
     # db.close()
 
+def parserTags(content):
+    tags = []
+    for key in KEYS.keys():
+        for value in KEYS[key]:
+            if content.find(value) >= 0:
+                tags.append(key)
+                break
 
+    if len(tags) == 0:
+        tags.append(LIFE)
+
+    return tags
 
 if __name__ == "__main__":
     reload(sys)
