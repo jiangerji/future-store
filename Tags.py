@@ -127,6 +127,35 @@ def parserTags(content):
 
     return tags
 
+def tags_validation():
+    try:
+        conn = None
+        if platform.system() == 'Windows':
+            conn=MySQLdb.connect(host="localhost",user="root", passwd="123456",db="world",charset="utf8")
+        else:
+            conn=MySQLdb.connect(host="localhost",user="debian-sys-maint",passwd="eMBWzH5SIFJw5I4c",db="future-store",charset="utf8")
+        cur=conn.cursor()
+
+        reseultSet = {}
+
+        cur.execute('select tagsid, contentid from erji_tz_portfolio_tags_xref')
+        for tagsid, contentid in cur.fetchall():
+            _r = reseultSet.get(contentid, set())
+            _r.add(tagsid)
+            reseultSet[contentid] = _r
+
+        cur.execute('DELETE FROM `erji_tz_portfolio_tags_xref`')
+
+        for contentid in reseultSet.keys():
+            for tagsid in reseultSet[contentid]:
+                cur.execute('insert into erji_tz_portfolio_tags_xref (tagsid, contentid) values (%s,%s)', (tagsid, contentid))
+
+        cur.close()
+        conn.commit()
+        conn.close()
+    except MySQLdb.Error,e:
+         print "Mysql Error %d: %s" % (e.args[0], e.args[1])
+
 if __name__ == "__main__":
     reload(sys)
     sys.setdefaultencoding('utf-8')
@@ -151,7 +180,8 @@ if __name__ == "__main__":
     if len(sys.argv) > 2:
         ignore = int(sys.argv[2])
 
-    mark_tags_to_products(count, ignore)
+    # mark_tags_to_products(count, ignore)
+    tags_validation()
 
     logFile.close()  
     if oldStdout:  
