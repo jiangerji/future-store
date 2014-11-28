@@ -53,9 +53,11 @@ def updateProductListByHot(quota=1):
         while True or index == 1:
             conn.request("GET", "/product/api/recommendList?cat_id=0&orderBy=hot&order=desc&pn=%d&limit=%d"%(index, QUOTA))
             response = conn.getresponse()
+            
             if response.status:
                 except_count = 0
                 pl, total_count = parseProductList(response.read())
+                print "process", index, response.status, total_count
 
                 for p in pl:
                     try:
@@ -82,7 +84,7 @@ def updateProductListByHot(quota=1):
                     db.commit()
 
                 if len(pl) < QUOTA:
-                    print "finish get product info!"
+                    print "finish get product info!", pl
                     break
 
                 try:
@@ -145,7 +147,7 @@ if __name__ == "__main__":
         ignore = int(sys.argv[2])
 
     print "============================================"
-    print "start update product:", time.asctime()
+    print "start update product:", time.asctime(), count
 
     updateProductListByHot(count)
 
