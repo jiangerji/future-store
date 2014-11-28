@@ -56,7 +56,7 @@ def insertProduct(cursor, quota=1, ignore=-1, _sqliteName=None):
 
 
         # 获取full text
-        full_text = db.execute('select product_detail from products_view where product_id='+str(product_id)).fetchone()[0]
+        product_intro, full_text = db.execute('select product_intro, product_detail from products_view where product_id='+str(product_id)).fetchone()
         content_id = insertIntoContent(cursor, asset_id, product_title, product_intro, full_text, 14)
 
         if content_id <= 0:

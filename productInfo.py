@@ -114,7 +114,7 @@ class ProductInfo:
         except Exception, e:
             print e
 
-        product_intro = "" # 商品介绍
+        _product_intro = "" # 商品介绍
 
         # product intro
         try:
@@ -123,9 +123,9 @@ class ProductInfo:
 
             match = re.search(pattern, content)
             if match:
-                product_intro = match.group()
-                product_intro = unicode(product_intro, "utf-8")
-                product_intro = product_intro[product_intro.index(">")+1:product_intro.rindex("</div>")]
+                _product_intro = match.group()
+                _product_intro = unicode(_product_intro, "utf-8")
+                _product_intro = _product_intro[_product_intro.index(">")+1:_product_intro.rindex("</div>")]
         except Exception, e:
             print "get product intro error:", e
         
@@ -187,8 +187,9 @@ class ProductInfo:
                 db.execute(CREATE_PRODUCT_VIEW_TABLE)
 
                 INSERT_COMMAND = "insert into products_view values (?,?,?,?,?,?)"
-                _detail = self.product_title + " " + self.product_intro +" " +product_detail
-                db.execute(INSERT_COMMAND, (self.product_id, product_intro, product_detail, str(product_thumbnails), buy_url, str(Tags.parserTags(_detail, mysqlDB, self.product_id))))
+                _detail = self.product_title + " " + _product_intro +" " +product_detail
+                db.execute(INSERT_COMMAND, (self.product_id, _product_intro, product_detail, str(product_thumbnails), buy_url, str(Tags.parserTags(_detail, mysqlDB, self.product_id))))
+                print _product_intro
                 db.commit()
             except Exception, e:
                 print "insert product view error:", e
