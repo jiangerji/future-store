@@ -124,6 +124,7 @@ def updateProductListByHot(quota=1):
 if __name__ == "__main__":
     reload(sys)
     sys.setdefaultencoding('utf-8')
+    os.chdir(os.path.dirname(sys.argv[0]))
 
     logFile = openLogFile()
 
