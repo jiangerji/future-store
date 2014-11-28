@@ -37,7 +37,7 @@ def requestUrlContent(url, cache_dir="cache", filename=None):
         print target_path, "is already downloaded!"
 
     # if url.lower().endswith(".png") or url.lower().endswith('.jpg') or url.lower().endswith('.gif') or url.lower().endswith("jpeg"):
-    if ext[1:] in PIC_SUFFIX:
+    if ext[1:].lower() in PIC_SUFFIX:
         return target_path
 
     return open(target_path).read()
