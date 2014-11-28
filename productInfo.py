@@ -63,7 +63,7 @@ class ProductInfo:
         if not os.path.isdir(self.html_cache_dir):
             os.makedirs(self.html_cache_dir)
 
-        print "创建缓存目录", self.html_cache_dir
+        # print "创建缓存目录", self.html_cache_dir
 
         self.img_cache_dir = os.path.join(cache_dir, "img")
         if not os.path.isdir(self.img_cache_dir):
@@ -102,7 +102,7 @@ class ProductInfo:
             # downloadFile(i, str(self.product_id))
             requestUrlContent(i, os.path.join(self.img_cache_dir, str(self.product_id)))
 
-    def downloadHtml(self, db=None):
+    def downloadHtml(self, db=None, mysqlDB=None):
         print "开始下载产品网页", self.product_name
         url = "http://store.baidu.com/product/view/%s.html"%str(self.product_id)
         cache_file_name = "%s.html"%str(self.product_id)
@@ -188,7 +188,7 @@ class ProductInfo:
 
                 INSERT_COMMAND = "insert into products_view values (?,?,?,?,?,?)"
                 _detail = self.product_title + " " + self.product_intro +" " +product_detail
-                db.execute(INSERT_COMMAND, (self.product_id, product_intro, product_detail, str(product_thumbnails), buy_url, str(Tags.parserTags(_detail))))
+                db.execute(INSERT_COMMAND, (self.product_id, product_intro, product_detail, str(product_thumbnails), buy_url, str(Tags.parserTags(_detail, mysqlDB, self.product_id))))
                 db.commit()
             except Exception, e:
                 print "insert product view error:", e

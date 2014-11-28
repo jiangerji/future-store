@@ -18,6 +18,18 @@ from DeployProducts import insert_product_main
 _FAKE = False
 
 def updateProductListByHot(quota=1):
+    mysqlConn = None
+    mysqlCur = None
+    try:
+        if platform.system() == 'Windows':
+            mysqlConn=MySQLdb.connect(host="localhost",user="root", passwd="123456",db="world",charset="utf8")
+        else:
+            mysqlConn=MySQLdb.connect(host="localhost",user=MYSQL_PASSPORT,passwd=MYSQL_PASSWORD,db=MYSQL_DATABASE,charset="utf8")
+        mysqlCur=mysqlConn.cursor()
+    except MySQLdb.Error,e:
+         print "Mysql Error %d: %s" % (e.args[0], e.args[1])
+
+
     """
     http://store.baidu.com/product/api/recommendList?cat_id=0&orderBy=hot&order=desc&pn=1&limit=36
     """
@@ -54,7 +66,7 @@ def updateProductListByHot(quota=1):
                         # 插入成功，缓存图片和html
                         p.downloadImg()
                         p.downloadHtml(db)
-                        p.downloadHtml(updateDB)
+                        p.downloadHtml(updateDB, mysqlCur)
                     except Exception, e:
                         print "insert product info exception:", e
 
@@ -97,6 +109,15 @@ def updateProductListByHot(quota=1):
     updateDB.close()
     insert_product_main(10000, -1, "update.store.sqlite")
 
+    if mysqlCur != None and mysqlConn != None:
+        try:
+            mysqlCur.close()
+            mysqlConn.commit()
+            mysqlConn.close()
+        except Exception, e:
+            pass
+        
+
     os.remove("update.store.sqlite")
 
 
@@ -104,14 +125,12 @@ if __name__ == "__main__":
     reload(sys)
     sys.setdefaultencoding('utf-8')
 
-    import codecs
-
-    logFile = codecs.open("UpdateProducts.log", "w", "utf-8")
+    logFile = openLogFile()
 
     oldStdout = sys.stdout  
     sys.stdout = logFile
 
-    count = 1000
+    count = 1
     ignore = -1
 
     if ("--fake" in sys.argv):
@@ -123,6 +142,9 @@ if __name__ == "__main__":
 
     if len(sys.argv) > 2:
         ignore = int(sys.argv[2])
+
+    print "============================================"
+    print "start update product:", time.asctime()
 
     updateProductListByHot(count)
 

@@ -6,6 +6,7 @@ import hashlib
 import sqlite3
 import time
 import Image
+import codecs
 
 MYSQL_PASSPORT = "debian-sys-maint"
 MYSQL_PASSWORD = "eMBWzH5SIFJw5I4c"
@@ -282,6 +283,23 @@ def insert_article_main(quota=1, ignore=-1, sqliteName=None):
         conn.close()
     except MySQLdb.Error,e:
          print "Mysql Error %d: %s" % (e.args[0], e.args[1])
+"""
+在log目录下创建filename.创建日期.log的日志文件
+如果为None, filename默认为调用该接口的python文件名
+"""
+def openLogFile(filename=None):
+    if filename == None:
+        filename = os.path.splitext(os.path.basename(sys.argv[0]))[0]
+
+    currentDate = time.strftime("%Y-%m-%d",time.localtime()) 
+
+    filename += "-" + currentDate + ".log"
+
+    logDir = "log"
+    if not os.path.isdir(logDir):
+        os.makedirs(logDir)
+
+    return codecs.open("log"+os.path.sep+filename, "a+", "utf-8")
 
 if __name__ == "__main__":
     reload(sys)
@@ -299,4 +317,5 @@ if __name__ == "__main__":
     if len(sys.argv) > 2:
         ignore = int(sys.argv[2])
 
-    insert_article_main(count, ignore)
+    # insert_article_main(count, ignore)
+    openLogFile()
