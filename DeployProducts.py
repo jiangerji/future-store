@@ -8,6 +8,7 @@ import time
 import Image
 
 from utils import *
+import Tags
 
 def insertProduct(cursor, quota=1, ignore=-1, _sqliteName=None):
     sqliteName = "store.sqlite"
@@ -63,6 +64,10 @@ def insertProduct(cursor, quota=1, ignore=-1, _sqliteName=None):
             continue
 
         insert_xref_content(cursor, content_id, images)
+
+        # 插入tags
+        _detail = product_title + " " + product_intro + " " + full_text
+        Tags.parserTags(_detail, cursor, content_id)
 
         count += 1
         if count >= quota:

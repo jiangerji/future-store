@@ -114,7 +114,7 @@ def _mark_tags_to_products(cursor, quota=1, ignore=-1):
     # db.commit()
     # db.close()
 
-def parserTags(content, mysqlCursor=None, product_id=None):
+def parserTags(content, mysqlCursor=None, content_id=None):
     tags = []
     for key in KEYS.keys():
         for value in KEYS[key]:
@@ -125,10 +125,10 @@ def parserTags(content, mysqlCursor=None, product_id=None):
     if len(tags) == 0:
         tags.append(LIFE)
 
-    if mysqlCursor !=None and product_id != None:
+    if mysqlCursor !=None and content_id != None:
         try:
-            values = map(lambda x: (x, product_id), tags)
-            print product_id, values
+            values = map(lambda x: (x, content_id), tags)
+            print "tags", content_id, values
             mysqlCursor.executemany('insert into erji_tz_portfolio_tags_xref (tagsid, contentid) values (%s,%s)', values)
         except Exception, e:
             print "parserTags", e
@@ -188,7 +188,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 2:
         ignore = int(sys.argv[2])
 
-    # mark_tags_to_products(count, ignore)
+    mark_tags_to_products(count, ignore)
     tags_validation()
 
     logFile.close()  

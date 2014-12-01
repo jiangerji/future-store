@@ -188,9 +188,9 @@ class ProductInfo:
 
                 INSERT_COMMAND = "insert into products_view values (?,?,?,?,?,?)"
                 _detail = self.product_title + " " + _product_intro +" " +product_detail
-                db.execute(INSERT_COMMAND, (self.product_id, _product_intro, product_detail, str(product_thumbnails), buy_url, str(Tags.parserTags(_detail, mysqlDB, self.product_id))))
-                print _product_intro
-                db.commit()
+                db.execute(INSERT_COMMAND, (self.product_id, _product_intro, product_detail, str(product_thumbnails), buy_url, str(Tags.parserTags(_detail, None, self.product_id))))
+                # print _product_intro
+                # db.commit()
             except Exception, e:
                 print "insert product view error:", e
 
