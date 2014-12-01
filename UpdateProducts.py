@@ -126,12 +126,16 @@ def updateProductListByHot(quota=1):
 if __name__ == "__main__":
     reload(sys)
     sys.setdefaultencoding('utf-8')
-    os.chdir(os.path.dirname(sys.argv[0]))
+
+    workDir = os.path.dirname(os.path.realpath(sys.argv[0]))
+    os.chdir(workDir)
 
     logFile = openLogFile()
 
     oldStdout = sys.stdout  
     sys.stdout = logFile
+
+    print "change work direcotory to workDir!"
 
     count = 1
     ignore = -1
