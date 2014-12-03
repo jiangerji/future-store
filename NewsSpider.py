@@ -52,6 +52,9 @@ class NewsInfo:
     def get_id(self):
         return self.id
 
+    def getTitle(self):
+        return self.title
+
     def toTuple(self):
         return (
             self.id, 
