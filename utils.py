@@ -7,6 +7,7 @@ import sqlite3
 import time
 import Image
 import codecs
+import random
 
 MYSQL_PASSPORT = "debian-sys-maint"
 MYSQL_PASSWORD = "eMBWzH5SIFJw5I4c"
@@ -95,8 +96,12 @@ def insertIntoContent(cursor, _asset_id, _title, _introtext, _fulltext, _catid=8
     """
     global CREATED_OWNER
     if CREATED_OWNER == None:
-        cursor.execute('select id from erji_users where username="jiangerji"')
-        CREATED_OWNER = cursor.fetchone()[0]
+        # cursor.execute('select id from erji_users where username="jiangerji"')
+        # CREATED_OWNER = cursor.fetchone()[0]
+
+        cursor.execute('select id from erji_users')
+        users = map(lambda x: x[0],  cursor.fetchall())
+        CREATED_OWNER = random.choice(users)
 
     asset_id = _asset_id
     title = _title
