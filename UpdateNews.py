@@ -144,6 +144,9 @@ def update(quota=1):
     while True:
         news_list = get_news_list(index)
 
+        if len(news_list) == 0:
+            break
+
         for news in news_list:
             try:
                 db.execute(INSERT_COMMAND, news.toTuple())
