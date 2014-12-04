@@ -126,8 +126,8 @@ def downloadNewsThumbnails(_id, url):
 #=========================================
 # 插入到__assets表中
 #=========================================
-ASSETS_LFT = 151
-ASSETS_RGT = 152
+ASSETS_LFT = 1001
+ASSETS_RGT = 1002
 ASSETS_RULES = '{"core.delete":{"6":1},"core.edit":{"6":1,"4":1},"core.edit.state":{"6":1,"5":1}}'
 def insertIntoAssets(cursor, title):
     # insert value into assets table, first step, return the id to insert content table
