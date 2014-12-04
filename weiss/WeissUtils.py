@@ -136,7 +136,7 @@ def insertIntoAssets(cursor, title):
     lastone = cursor.fetchone()
     name_id = 1
     if lastone != None:
-        _lft, _rgt, _name_id = cursor.fetchone()
+        _lft, _rgt, _name_id = lastone
         name_id = int(_name_id.split(".")[-1]) + 1
     else:
         _lft = 11
