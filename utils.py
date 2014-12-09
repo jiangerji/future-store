@@ -86,6 +86,7 @@ CONTENT_ATTRIBS = '{"show_title":"","link_titles":"","show_intro":"","show_categ
 CONTENT_INSERT_COMMAND = 'insert into erji_content (asset_id, title, alias, introtext, `fulltext`, state, catid, created, created_by, created_by_alias, modified, modified_by, checked_out, checked_out_time, publish_up, publish_down, images, urls, attribs, version, ordering, metakey, metadesc, access, hits, metadata, featured, language, xreference) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
 
 CREATED_OWNER = None
+_OWNERS = None
 
 def insertIntoContent(cursor, _asset_id, _title, _introtext, _fulltext, _catid=8):
     """
@@ -94,14 +95,14 @@ def insertIntoContent(cursor, _asset_id, _title, _introtext, _fulltext, _catid=8
     _introtext: 文章的简要介绍
     _fulltext: 文章全部内容
     """
-    global CREATED_OWNER
-    if CREATED_OWNER == None:
+    global CREATED_OWNER, _OWNERS
+    if _OWNERS == None:
         # cursor.execute('select id from erji_users where username="jiangerji"')
         # CREATED_OWNER = cursor.fetchone()[0]
 
         cursor.execute('select id from erji_users')
-        users = map(lambda x: x[0],  cursor.fetchall())
-        CREATED_OWNER = random.choice(users)
+        _OWNERS = map(lambda x: x[0],  cursor.fetchall())
+    CREATED_OWNER = random.choice(_OWNERS)
 
     asset_id = _asset_id
     title = _title
