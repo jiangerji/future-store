@@ -28,23 +28,13 @@ def insertEvaluation(cursor, quota=1, ignore=-1, _sqliteName=None):
 
         evaluation_id, product_id, title, content, thumbnail, excerpt = evaluation
         print "\n处理", evaluation_id, title
-        # print product_id, product_title, product_intro, product_cover_img, product_thumbnail
 
-        # thumbnails = None
-        # if product_cover_img != None and len(product_cover_img.strip()) > 0:
-        #     thumbnails = product_cover_img
-        # else:
-        #     try:
-        #         thumbnails = eval(product_thumbnail)[0]
-        #     except Exception, e:
-        #         pass
-
-        # if thumbnails == None:
-        #     print "未找到图片，跳过", product_id
-        #     continue
-
-        # print "thumbnails", thumbnails
-            
+        # 获取buy url
+        buy_url = ""
+        try:
+            buy_url = db.execute('select buy_url from products_view where product_id='+product_id).fetchone()[0]
+        except Exception, e:
+            pass
 
         # images是 erji_tz_portfolio_xref_content需要
         if thumbnail != None:
@@ -55,8 +45,19 @@ def insertEvaluation(cursor, quota=1, ignore=-1, _sqliteName=None):
 
         asset_id = utils.insertIntoAssets(cursor, title)
 
+        # 添加原文链接
+        origin_text_url = "http://store.baidu.com/evaluation/view/%s.html"%str(evaluation_id)
+        origin_text_btn_code = '<a class="btn btn-large btn-primary" href="%s" target="_blank">测评原文地址</a>\n'%origin_text_url
+
+        additionContent = origin_text_btn_code
+
+        if len(buy_url) > 0:
+            buy_btn_code = '<a class="btn btn-large btn-primary" href="%s" target="_blank">立即购买</a>\n'%buy_url
+            additionContent = buy_btn_code + additionContent
+
+        content = '<p class="jiangerji">'+additionContent+'</p>' + content
+
         content_id = utils.insertIntoContent(cursor, asset_id, title, excerpt, content, 15)
-        print content_id
         if content_id <= 0:
             continue
 
