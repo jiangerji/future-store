@@ -64,8 +64,8 @@ def _insertToDB(db, evaluation):
         result = False
     return result
 
-def main():
-    db = sqlite3.connect("store.sqlite")
+def main(sqliteName="store.sqlite"):
+    db = sqlite3.connect(sqliteName)
     db.text_factory = lambda x: unicode(x, 'utf-8', 'ignore')
     if not _createTable(db):
         return

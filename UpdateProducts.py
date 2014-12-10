@@ -15,6 +15,9 @@ from utils import *
 from ProductSpider import parseProductList
 from DeployProducts import insert_product_main
 
+import EvaluationDeploy
+import EvaluationSpider
+
 _FAKE = False
 
 def updateProductListByHot(quota=1):
@@ -22,7 +25,7 @@ def updateProductListByHot(quota=1):
     mysqlCur = None
     try:
         if platform.system() == 'Windows':
-            mysqlConn=MySQLdb.connect(host="localhost",user="root", passwd="123456",db="world",charset="utf8")
+            mysqlConn=MySQLdb.connect(host="localhost",user="root", passwd="123456",db="test",charset="utf8")
         else:
             mysqlConn=MySQLdb.connect(host="localhost",user=MYSQL_PASSPORT,passwd=MYSQL_PASSWORD,db=MYSQL_DATABASE,charset="utf8")
         mysqlCur=mysqlConn.cursor()
@@ -109,7 +112,10 @@ def updateProductListByHot(quota=1):
 
     updateDB.commit()
     updateDB.close()
+
     insert_product_main(10000, -1, "update.store.sqlite")
+    EvaluationSpider.main("update.store.sqlite")
+    EvaluationDeploy.main(10000, -1, "update.store.sqlite")
 
     if mysqlCur != None and mysqlConn != None:
         try:
