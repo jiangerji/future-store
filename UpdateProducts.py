@@ -159,7 +159,7 @@ if __name__ == "__main__":
     print "============================================"
     print "start update product:", time.asctime(), count
 
-    updateProductListByHot(count)
+    updateProductListByHot(100)
 
     logFile.close()  
     if oldStdout:  

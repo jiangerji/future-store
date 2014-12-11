@@ -12,6 +12,7 @@ import MySQLdb
 
 import utils
 from Evaluation import Evaluation
+import EvaluationDeploy
 
 def _parserEvaluation(contents):
     all = json.loads(contents)
@@ -73,16 +74,28 @@ def main(sqliteName="store.sqlite"):
     succcount = 0
     failcount = 0
 
+    updateSqliteName = "_update.evaluation.sqlite"
+
+    updateSqlite = sqlite3.connect(updateSqliteName)
+    updateSqlite.text_factory = lambda x: unicode(x, 'utf-8', 'ignore')
+    if not _createTable(updateSqlite):
+        updateSqlite.close()
+        updateSqlite = None
+
     # 获取product id
     cursor = db.execute("select product_id from products_info")
 
     for productid in cursor.fetchall():
         print "处理", productid
+
         evaluations = getEvaluation(productid[0])
     
         for evaluation in evaluations:
             if _insertToDB(db, evaluation):
                 succcount += 1
+                if _UPDATE and updateSqlite != None:
+                    _insertToDB(updateSqlite, evaluation)
+                    updateSqlite.commit()
             else:
                 failcount += 1
 
@@ -91,8 +104,15 @@ def main(sqliteName="store.sqlite"):
     print "插入测评报告成功:", succcount
     db.commit()
     db.close()
+
+    if _UPDATE and updateSqlite != None:
+        updateSqlite.commit()
+        updateSqlite.close()
+
+        EvaluationDeploy.main(10000, -1, updateSqliteName)
     
 
+_UPDATE = True
 
 if __name__ == "__main__":
     reload(sys)
@@ -108,23 +128,15 @@ if __name__ == "__main__":
 
     print "change work direcotory to workDir", workDir
 
-    count = 1
-    ignore = -1
-
     if ("--fake" in sys.argv):
         _FAKE = True
 
-    if len(sys.argv) > 1:
-        count = abs(int(sys.argv[1]))
-
-
-    if len(sys.argv) > 2:
-        ignore = int(sys.argv[2])
+    if ("--update" in sys.argv):
+        _UPDATE = True
 
     print "============================================"
-    print "start update product:", time.asctime(), count
+    print "start update product:", time.asctime()
 
-    # updateProductListByHot(count)
     main()
 
     logFile.close()  
