@@ -76,6 +76,12 @@ def main(sqliteName="store.sqlite"):
 
     updateSqliteName = "_update.evaluation.sqlite"
 
+    # 保证清空updateSqliteName
+    try:
+        os.remove(updateSqliteName)
+    except Exception, e:
+        print e
+
     updateSqlite = sqlite3.connect(updateSqliteName)
     updateSqlite.text_factory = lambda x: unicode(x, 'utf-8', 'ignore')
     if not _createTable(updateSqlite):
@@ -110,6 +116,10 @@ def main(sqliteName="store.sqlite"):
         updateSqlite.close()
 
         EvaluationDeploy.main(10000, -1, updateSqliteName)
+        try:
+            os.remove(updateSqliteName)
+        except Exception, e:
+            print e
     
 
 _UPDATE = True
