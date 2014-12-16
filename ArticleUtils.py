@@ -28,7 +28,7 @@ def verifyAlias():
         if platform.system() == 'Windows':
             mysqlConn=MySQLdb.connect(host="localhost",user="root", passwd="123456",db="test",charset="utf8")
         else:
-            mysqlConn=MySQLdb.connect(host="localhost",user=MYSQL_PASSPORT,passwd=MYSQL_PASSWORD,db=MYSQL_DATABASE,charset="utf8")
+            mysqlConn=MySQLdb.connect(host="localhost",user=utils.MYSQL_PASSPORT,passwd=utils.MYSQL_PASSWORD,db=utils.MYSQL_DATABASE,charset="utf8")
         mysqlCur=mysqlConn.cursor()
     except MySQLdb.Error,e:
          print "Mysql Error %d: %s" % (e.args[0], e.args[1])
