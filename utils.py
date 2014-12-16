@@ -309,8 +309,8 @@ def openLogFile(filename=None):
     return codecs.open("log"+os.path.sep+filename, "a+", "utf-8")
 
 def aliasVerify(alias):
-    _special_chars = " \\/&#"
-    alias = alias.replace("-", "").strip()
+    _special_chars = "\\/"
+    # alias = alias.replace("-", "").strip()
     for i in _special_chars:
         alias = alias.replace(i, "-")
 
