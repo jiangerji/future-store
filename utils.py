@@ -87,6 +87,7 @@ CONTENT_INSERT_COMMAND = 'insert into erji_content (asset_id, title, alias, intr
 
 CREATED_OWNER = None
 _OWNERS = None
+_SPECIAL_CHAR = "\\/% "
 
 def insertIntoContent(cursor, _asset_id, _title, _introtext, _fulltext, _catid=8):
     """
@@ -106,7 +107,7 @@ def insertIntoContent(cursor, _asset_id, _title, _introtext, _fulltext, _catid=8
 
     asset_id = _asset_id
     title = _title
-    alias = title
+    alias = aliasVerify(title)
     introtext = _introtext
     fulltext = _fulltext
     state = 1
@@ -307,12 +308,24 @@ def openLogFile(filename=None):
 
     return codecs.open("log"+os.path.sep+filename, "a+", "utf-8")
 
+def aliasVerify(alias):
+    _special_chars = " \\/&#"
+    alias = alias.replace("-", "").strip()
+    for i in _special_chars:
+        alias = alias.replace(i, "-")
+
+    if alias[0] == '-':
+        alias = alias[1:]
+    return alias
+
 if __name__ == "__main__":
     reload(sys)
     sys.setdefaultencoding('utf-8')
     # requestUrlContent("http://store.baidu.com/product/api/recommendList?cat_id=0&orderBy=hot&order=desc&pn=1&limit=36")
     # downloadNewsThumbnail()
     # insert_article_main()
+    a = "/11\\222#333&777 888"
+    print aliasVerify(a)
     count = 1
     ignore = -1
 
@@ -324,4 +337,4 @@ if __name__ == "__main__":
         ignore = int(sys.argv[2])
 
     # insert_article_main(count, ignore)
-    openLogFile()
+    # openLogFile()

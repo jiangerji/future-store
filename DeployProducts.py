@@ -79,7 +79,7 @@ def insert_product_main(quota=1, ignore=-1, _sqliteName="store.sqlite"):
         import platform
         conn = None
         if platform.system() == 'Windows':
-            conn=MySQLdb.connect(host="localhost",user="root", passwd="123456",db="world",charset="utf8")
+            conn=MySQLdb.connect(host="localhost",user="root", passwd="123456",db="test",charset="utf8")
         else:
             conn=MySQLdb.connect(host="localhost",user="debian-sys-maint",passwd="eMBWzH5SIFJw5I4c",db="future-store",charset="utf8")
         cur=conn.cursor()
