@@ -11,7 +11,7 @@ import utils
 _FAKE = False
 
 def aliasVerify(alias):
-    _special_chars = "\\/"
+    _special_chars = "\\/%"
     # alias = alias.replace("-", "").strip()
     for i in _special_chars:
         alias = alias.replace(i, "-")
@@ -67,7 +67,8 @@ if __name__ == "__main__":
     print "============================================"
     print "start ArticleUtils:", time.asctime()
 
-    verifyAlias()
+    if "--alias in sys.argv":
+        verifyAlias()
 
     logFile.close()  
     if oldStdout:  
